@@ -1,20 +1,17 @@
 {
   "expo": {
     "name": "CineTrack",
-    "slug": "cinetrack",
+    "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/cinetrack-logo.png",
-
     "scheme": "cinetrack",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
-
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.diegdev.cinetrack"
     },
-
     "android": {
       "package": "com.diegdev.cinetrack",
       "versionCode": 1,
@@ -23,11 +20,9 @@
         "backgroundColor": "#000000"
       }
     },
-
     "web": {
       "favicon": "./assets/images/cinetrack-logo.png"
     },
-
     "plugins": [
       "expo-router",
       [
@@ -44,17 +39,16 @@
       ],
       "expo-font"
     ],
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
-
     "extra": {
       "router": {},
       "eas": {
         "projectId": "cf0be5bb-6f82-49bb-9c15-83c0df419445"
       }
-    }
+    },
+    "owner": "dieguito05"
   }
 }
