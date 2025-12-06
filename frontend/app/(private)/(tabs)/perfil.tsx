@@ -10,20 +10,20 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
 
-// URL de producción (Render)
+// URL de producción
 const API = "https://cinetrack-produc.onrender.com/api";
 
 export default function Perfil() {
   const { user, logout } = useAuth();
+
   const [bio, setBio] = useState<string>("");
-  const [reseñas, setReseñas] = useState<
+  const [resenas, setResenas] = useState<
     { idResena: number; titulo: string; calificacion: number; contenido: string }[]
   >([]);
-  const [foto, setFoto] = useState<string>("");
+
   const [loading, setLoading] = useState<boolean>(true);
 
   // 🧭 Cargar datos del perfil
@@ -32,19 +32,14 @@ export default function Perfil() {
 
     const fetchPerfil = async () => {
       try {
-        const res = await axios.get(`${API}/usuarios/${user.idUsuario}`);
+        // RUTA CORRECTA DEL BACKEND
+        const res = await axios.get(`${API}/usuarios/perfil/${user.idUsuario}`);
         setBio(res.data.bio || "");
 
-        setFoto(
-          res.data.foto_perfil
-            ? `https://cinetrack-produc.onrender.com/uploads/fotos/${res.data.foto_perfil}`
-            : ""
-        );
+        // RUTA CORRECTA PARA RESEÑAS
+        const resResenas = await axios.get(`${API}/usuarios/resenas/${user.idUsuario}`);
+        setResenas(resResenas.data || []);
 
-        const resReseñas = await axios.get(
-          `${API}/usuarios/resenas/${user.idUsuario}`
-        );
-        setReseñas(resReseñas.data || []);
       } catch (error) {
         console.error("⚠️ Error al cargar perfil:", error);
         Alert.alert("Error", "No se pudo cargar el perfil.");
@@ -72,46 +67,6 @@ export default function Perfil() {
     }
   };
 
-  // 📸 Cambiar foto de perfil
-  const handleCambiarFoto = async () => {
-    if (!user?.idUsuario) {
-      Alert.alert("Error", "Usuario no encontrado.");
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets?.length > 0) {
-      const formData = new FormData();
-      formData.append("foto", {
-        uri: result.assets[0].uri,
-        type: "image/jpeg",
-        name: `perfil_${user.idUsuario}.jpg`,
-      } as any);
-
-      try {
-        const res = await axios.post(
-          `${API}/usuarios/foto/${user.idUsuario}`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
-
-        setFoto(
-          `https://cinetrack-produc.onrender.com/uploads/fotos/${res.data.archivo}`
-        );
-
-        Alert.alert("✅ Foto actualizada correctamente.");
-      } catch (error) {
-        console.error("Error al subir foto:", error);
-        Alert.alert("Error", "No se pudo subir la foto.");
-      }
-    }
-  };
-
   // 🚪 Logout
   const handleLogout = () => {
     Alert.alert("Cerrar sesión", "¿Deseas salir?", [
@@ -133,16 +88,10 @@ export default function Perfil() {
     <ScrollView style={styles.container}>
       {/* FOTO + INFO */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleCambiarFoto}>
-          <Image
-            source={
-              foto
-                ? { uri: foto }
-                : require("../../../assets/images/default_user.png")
-            }
-            style={styles.avatar}
-          />
-        </TouchableOpacity>
+        <Image
+          source={require("../../../assets/images/default_user.png")}
+          style={styles.avatar}
+        />
 
         <Text style={styles.name}>{user?.nombre}</Text>
         <Text style={styles.email}>{user?.correo}</Text>
@@ -167,10 +116,10 @@ export default function Perfil() {
       {/* RESEÑAS */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Mis reseñas</Text>
-        {reseñas.length === 0 ? (
+        {resenas.length === 0 ? (
           <Text style={styles.emptyText}>No has dejado reseñas aún.</Text>
         ) : (
-          reseñas.map((r) => (
+          resenas.map((r) => (
             <View key={r.idResena} style={styles.review}>
               <Text style={styles.movieTitle}>{r.titulo}</Text>
               <Text style={styles.rating}>⭐ {r.calificacion}</Text>
