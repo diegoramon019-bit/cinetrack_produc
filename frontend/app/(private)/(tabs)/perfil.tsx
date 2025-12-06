@@ -14,16 +14,17 @@ import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
 
+// URL de producción (Render)
+const API = "https://cinetrack-produc.onrender.com/api";
+
 export default function Perfil() {
   const { user, logout } = useAuth();
   const [bio, setBio] = useState<string>("");
   const [reseñas, setReseñas] = useState<
     { idResena: number; titulo: string; calificacion: number; contenido: string }[]
   >([]);
-  const [foto, setFoto] = useState<string>(""); // antes era string|null
+  const [foto, setFoto] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
-
-  const IP = "192.168.100.169"; // 💻 tu IP local
 
   // 🧭 Cargar datos del perfil
   useEffect(() => {
@@ -31,21 +32,22 @@ export default function Perfil() {
 
     const fetchPerfil = async () => {
       try {
-        const res = await axios.get(`http://${IP}:3000/api/usuarios/${user.idUsuario}`);
+        const res = await axios.get(`${API}/usuarios/${user.idUsuario}`);
         setBio(res.data.bio || "");
+
         setFoto(
           res.data.foto_perfil
-            ? `http://${IP}:3000/uploads/fotos/${res.data.foto_perfil}`
+            ? `https://cinetrack-produc.onrender.com/uploads/fotos/${res.data.foto_perfil}`
             : ""
         );
 
         const resReseñas = await axios.get(
-          `http://${IP}:3000/api/usuarios/resenas/${user.idUsuario}`
+          `${API}/usuarios/resenas/${user.idUsuario}`
         );
         setReseñas(resReseñas.data || []);
       } catch (error) {
         console.error("⚠️ Error al cargar perfil:", error);
-        Alert.alert("Error", "No se pudo cargar la información del perfil.");
+        Alert.alert("Error", "No se pudo cargar el perfil.");
       } finally {
         setLoading(false);
       }
@@ -57,12 +59,12 @@ export default function Perfil() {
   // 📝 Actualizar biografía
   const handleActualizarBio = async () => {
     if (!user?.idUsuario) {
-      Alert.alert("Error", "No se encontró información del usuario.");
+      Alert.alert("Error", "Usuario no encontrado.");
       return;
     }
 
     try {
-      await axios.put(`http://${IP}:3000/api/usuarios/bio/${user.idUsuario}`, { bio });
+      await axios.put(`${API}/usuarios/bio/${user.idUsuario}`, { bio });
       Alert.alert("✅ Éxito", "Tu biografía fue actualizada.");
     } catch (error) {
       console.error("Error al actualizar bio:", error);
@@ -70,21 +72,20 @@ export default function Perfil() {
     }
   };
 
-  // 📷 Cambiar foto
+  // 📸 Cambiar foto de perfil
   const handleCambiarFoto = async () => {
     if (!user?.idUsuario) {
-      Alert.alert("Error", "No se encontró información del usuario.");
+      Alert.alert("Error", "Usuario no encontrado.");
       return;
     }
 
-    // 🚨 Nueva API de Expo SDK 54+
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"], // reemplaza MediaTypeOptions por string[]
+      mediaTypes: ["images"],
       allowsEditing: true,
       quality: 0.8,
     });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
+    if (!result.canceled && result.assets?.length > 0) {
       const formData = new FormData();
       formData.append("foto", {
         uri: result.assets[0].uri,
@@ -94,23 +95,28 @@ export default function Perfil() {
 
       try {
         const res = await axios.post(
-          `http://${IP}:3000/api/usuarios/foto/${user.idUsuario}`,
+          `${API}/usuarios/foto/${user.idUsuario}`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
-        setFoto(`http://${IP}:3000/uploads/fotos/${res.data.archivo}`);
+
+        setFoto(
+          `https://cinetrack-produc.onrender.com/uploads/fotos/${res.data.archivo}`
+        );
+
         Alert.alert("✅ Foto actualizada correctamente.");
       } catch (error) {
         console.error("Error al subir foto:", error);
-        Alert.alert("Error", "No se pudo subir la foto de perfil.");
+        Alert.alert("Error", "No se pudo subir la foto.");
       }
     }
   };
 
+  // 🚪 Logout
   const handleLogout = () => {
-    Alert.alert("Cerrar sesión", "¿Seguro que deseas salir?", [
+    Alert.alert("Cerrar sesión", "¿Deseas salir?", [
       { text: "Cancelar", style: "cancel" },
-      { text: "Sí, salir", onPress: () => logout() },
+      { text: "Sí", onPress: () => logout() },
     ]);
   };
 
@@ -125,6 +131,7 @@ export default function Perfil() {
 
   return (
     <ScrollView style={styles.container}>
+      {/* FOTO + INFO */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleCambiarFoto}>
           <Image
@@ -141,7 +148,7 @@ export default function Perfil() {
         <Text style={styles.email}>{user?.correo}</Text>
       </View>
 
-      {/* 📝 Biografía */}
+      {/* BIO */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Sobre mí</Text>
         <TextInput
@@ -157,11 +164,11 @@ export default function Perfil() {
         </TouchableOpacity>
       </View>
 
-      {/* 💬 Reseñas */}
+      {/* RESEÑAS */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Mis reseñas</Text>
         {reseñas.length === 0 ? (
-          <Text style={styles.emptyText}>No has dejado reseñas todavía.</Text>
+          <Text style={styles.emptyText}>No has dejado reseñas aún.</Text>
         ) : (
           reseñas.map((r) => (
             <View key={r.idResena} style={styles.review}>
@@ -173,7 +180,7 @@ export default function Perfil() {
         )}
       </View>
 
-      {/* 🚪 Cerrar sesión */}
+      {/* LOGOUT */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Cerrar sesión</Text>
       </TouchableOpacity>
@@ -181,11 +188,20 @@ export default function Perfil() {
   );
 }
 
+//
+// 🎨 ESTILOS
+//
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0D0D0D" },
-  loader: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#0D0D0D" },
+  loader: { flex: 1, justifyContent: "center", alignItems: "center" },
   header: { alignItems: "center", paddingVertical: 20 },
-  avatar: { width: 120, height: 120, borderRadius: 60, borderWidth: 2, borderColor: "#3FB7FF" },
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 2,
+    borderColor: "#3FB7FF",
+  },
   name: { color: "#E6DED2", fontSize: 22, fontWeight: "bold", marginTop: 10 },
   email: { color: "#aaa", fontSize: 14 },
   section: { paddingHorizontal: 20, marginTop: 20 },
@@ -207,7 +223,12 @@ const styles = StyleSheet.create({
   },
   saveButtonText: { color: "#fff", fontWeight: "bold" },
   emptyText: { color: "#aaa", textAlign: "center", marginTop: 10 },
-  review: { backgroundColor: "#1A1A1A", padding: 10, borderRadius: 8, marginVertical: 6 },
+  review: {
+    backgroundColor: "#1A1A1A",
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 6,
+  },
   movieTitle: { color: "#3FB7FF", fontWeight: "bold" },
   rating: { color: "#FFD700" },
   comment: { color: "#ccc", marginTop: 4 },

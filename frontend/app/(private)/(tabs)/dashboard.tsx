@@ -22,6 +22,9 @@ export default function Dashboard() {
   >([]);
   const [loading, setLoading] = useState(true);
 
+  //  URL del backend en Render
+  const API = "https://cinetrack-produc.onrender.com/api";
+
   useEffect(() => {
     if (!user) {
       router.replace("/login");
@@ -30,12 +33,12 @@ export default function Dashboard() {
 
     const fetchPeliculas = async () => {
       try {
-        console.log(" Cargando películas...");
-        const res = await axios.get("http://192.168.100.169:3000/api/peliculas"); //ip la base local. 
+        console.log("📡 Cargando películas desde Render...");
+        const res = await axios.get(`${API}/peliculas`);
         setPeliculas(res.data);
-        console.log("Películas recibidas desde la bd :", res.data.length);
+        console.log("🎬 Películas recibidas:", res.data.length);
       } catch (error) {
-        console.error("Error al cargar las películas:", error);
+        console.error("❌ Error al cargar las películas:", error);
         Alert.alert("Error", "No se pudieron cargar las películas. Verifica tu conexión o servidor.");
       } finally {
         setLoading(false);
@@ -54,7 +57,7 @@ export default function Dashboard() {
     );
   }
 
-  // Clasificación automática
+  // 🔎 Clasificación automática
   const series = peliculas.filter(
     (p) =>
       p.genero?.toLowerCase().includes("temporada") ||
@@ -67,7 +70,7 @@ export default function Dashboard() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Logo gráfico del inicio */}
+      {/* Encabezado */}
       <View style={styles.header}>
         <Image
           source={require("../../../assets/images/cinetrack-logo.png")}
@@ -77,7 +80,7 @@ export default function Dashboard() {
         <Text style={styles.subtitle}>Tu universo cinematográfico digital.</Text>
       </View>
 
-      {/* 🎞 Sección principal: Populares */}
+      {/* POPULARES */}
       <Text style={styles.sectionTitle}>Populares</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
         {populares.map((item) => (
@@ -95,7 +98,7 @@ export default function Dashboard() {
         ))}
       </ScrollView>
 
-      {/*  Segunda sección: Recomendadas */}
+      {/* RECOMENDADAS */}
       <Text style={styles.sectionTitle}>Recomendadas</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
         {recomendadas.map((item) => (
@@ -110,7 +113,7 @@ export default function Dashboard() {
         ))}
       </ScrollView>
 
-      {/* Nueva sección: Series */}
+      {/* SERIES */}
       {series.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>Series</Text>
@@ -138,17 +141,8 @@ export default function Dashboard() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0D0D0D", paddingTop: 50 },
   header: { alignItems: "center", marginBottom: 20 },
-  logoImage: {
-    width: 190,
-    height: 90,
-    marginBottom: 5,
-  },
-  subtitle: {
-    color: "#ccc",
-    fontSize: 14,
-    textAlign: "center",
-    fontStyle: "italic",
-  },
+  logoImage: { width: 190, height: 90, marginBottom: 5 },
+  subtitle: { color: "#ccc", fontSize: 14, textAlign: "center", fontStyle: "italic" },
   sectionTitle: {
     color: "#E6DED2",
     fontSize: 20,

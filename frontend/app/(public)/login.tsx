@@ -14,13 +14,16 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
 
+// API CENTRALIZADA (Render)
+const API = "https://cinetrack-produc.onrender.com/api";
+
 export default function Login() {
   const [correo, setCorreo] = useState("");
   const [pass, setPass] = useState("");
   const router = useRouter();
   const { login } = useAuth();
 
-  // Animación del logo
+  // 🎬 Animación del logo
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
@@ -41,6 +44,7 @@ export default function Login() {
     ]).start();
   }, []);
 
+  // 🔐 LOGIN
   const handleLogin = async () => {
     if (!correo.trim() || !pass.trim()) {
       Alert.alert("Error", "Por favor completá todos los campos.");
@@ -48,7 +52,7 @@ export default function Login() {
     }
 
     try {
-      const response = await axios.post("http://192.168.100.169:3000/api/usuarios/login", {
+      const response = await axios.post(`${API}/usuarios/login`, {
         correo,
         pass,
       });
@@ -56,7 +60,7 @@ export default function Login() {
       const usuario = response.data.usuario;
 
       if (usuario) {
-        await login(usuario);
+        await login(usuario); // Guardar usuario en contexto
         Alert.alert("🎬 Éxito", `Bienvenido, ${usuario.nombre}!`);
         router.push("/dashboard");
       } else {
@@ -64,7 +68,12 @@ export default function Login() {
       }
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error.message);
-      Alert.alert("Error", "Correo o contraseña incorrectos");
+
+      if (error.response?.data?.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else {
+        Alert.alert("Error", "No se pudo conectar con el servidor.");
+      }
     }
   };
 
@@ -111,6 +120,7 @@ export default function Login() {
   );
 }
 
+// 🎨 ESTILOS
 const styles = StyleSheet.create({
   container: {
     flex: 1,

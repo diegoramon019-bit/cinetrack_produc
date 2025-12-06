@@ -27,16 +27,17 @@ export default function PeliculaDetalle() {
   const [modalVisible, setModalVisible] = useState(false);
   const [plataformas, setPlataformas] = useState<string | null>(null);
 
-  const IP = "192.168.100.169"; // IP local de tu backend
+  // URL del backend en Render
+  const API = "https://cinetrack-produc.onrender.com/api";
 
-  // 🔹 Cargar película y reseñas
+  // ✔️ Cargar película y reseñas
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const peliRes = await axios.get(`http://${IP}:3000/api/peliculas/${id}`);
+        const peliRes = await axios.get(`${API}/peliculas/${id}`);
         setPelicula(peliRes.data);
 
-        const reseRes = await axios.get(`http://${IP}:3000/api/resenas/${id}`);
+        const reseRes = await axios.get(`${API}/resenas/${id}`);
         setReseñas(reseRes.data);
       } catch (error) {
         console.error("Error al cargar datos:", error);
@@ -48,21 +49,17 @@ export default function PeliculaDetalle() {
     fetchData();
   }, [id]);
 
-  // 🔹 Consultar plataformas (al abrir modal)
+  // ✔️ Consultar plataformas
   const fetchPlataformas = async () => {
     try {
-      const res = await axios.get(`http://${IP}:3000/api/peliculas/plataformas/${id}`);
-      if (res.data.plataformas) {
-        setPlataformas(res.data.plataformas);
-      } else {
-        setPlataformas("No hay información disponible sobre dónde ver esta película.");
-      }
-    } catch (error) {
-      console.error("Error al obtener plataformas:", error);
-      setPlataformas("No hay información disponible sobre dónde ver esta película.");
+      const res = await axios.get(`${API}/peliculas/plataformas/${id}`);
+      setPlataformas(res.data.plataformas || "No hay información disponible.");
+    } catch {
+      setPlataformas("No hay información disponible.");
     }
   };
 
+  // ✔️ Enviar nueva reseña
   const handleEnviarResena = async () => {
     if (!nuevaResena.trim() || calificacion === 0) {
       Alert.alert("Error", "Debes escribir una reseña y seleccionar una calificación.");
@@ -70,7 +67,7 @@ export default function PeliculaDetalle() {
     }
 
     try {
-      await axios.post(`http://${IP}:3000/api/resenas`, {
+      await axios.post(`${API}/resenas`, {
         idUsuario: user?.idUsuario,
         idPelicula: id,
         contenido: nuevaResena,
@@ -81,7 +78,7 @@ export default function PeliculaDetalle() {
       setNuevaResena("");
       setCalificacion(0);
 
-      const reseRes = await axios.get(`http://${IP}:3000/api/resenas/${id}`);
+      const reseRes = await axios.get(`${API}/resenas/${id}`);
       setReseñas(reseRes.data);
     } catch (error) {
       console.error("Error al enviar reseña:", error);
@@ -89,6 +86,7 @@ export default function PeliculaDetalle() {
     }
   };
 
+  // ⏳ Loading
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -97,6 +95,7 @@ export default function PeliculaDetalle() {
     );
   }
 
+  // ❌ Película no encontrada
   if (!pelicula) {
     return (
       <View style={styles.loader}>
@@ -118,7 +117,7 @@ export default function PeliculaDetalle() {
         <Text style={styles.section}>Sinopsis</Text>
         <Text style={styles.text}>{pelicula.descripcion}</Text>
 
-        {/* 📺 Nuevo botón Dónde ver */}
+        {/* 📺 Botón Dónde ver */}
         <TouchableOpacity
           style={styles.whereButton}
           onPress={() => {
@@ -129,13 +128,8 @@ export default function PeliculaDetalle() {
           <Text style={styles.whereButtonText}>📺 Dónde ver</Text>
         </TouchableOpacity>
 
-        {/* Modal de plataformas */}
-        <Modal
-          transparent={true}
-          visible={modalVisible}
-          animationType="fade"
-          onRequestClose={() => setModalVisible(false)}
-        >
+        {/* Modal */}
+        <Modal transparent visible={modalVisible} animationType="fade">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Dónde ver {pelicula.titulo}</Text>
@@ -150,7 +144,7 @@ export default function PeliculaDetalle() {
           </View>
         </Modal>
 
-        {/* ⭐ Calificación y reseña */}
+        {/* ⭐ Calificación */}
         <Text style={styles.section}>Tu reseña</Text>
         <View style={styles.starRow}>
           {[1, 2, 3, 4, 5].map((n) => (
@@ -164,6 +158,7 @@ export default function PeliculaDetalle() {
           ))}
         </View>
 
+        {/* 📝 Input reseña */}
         <TextInput
           style={styles.input}
           placeholder="Escribe tu reseña..."
@@ -177,7 +172,7 @@ export default function PeliculaDetalle() {
           <Text style={styles.buttonText}>Enviar reseña</Text>
         </TouchableOpacity>
 
-        {/* 🗨️ Reseñas de otros usuarios */}
+        {/* 🗨 Reseñas existentes */}
         <Text style={styles.section}>Reseñas de otros usuarios</Text>
         {reseñas.length === 0 ? (
           <Text style={styles.noResenas}>Aún no hay reseñas para esta película.</Text>

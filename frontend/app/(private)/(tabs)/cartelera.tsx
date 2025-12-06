@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import axios from "axios";
 
-// Definimos el tipo correcto
 interface CarteleraItem {
   idCartelera: number;
   titulo: string;
@@ -24,12 +23,14 @@ interface CarteleraItem {
 export default function Cartelera() {
   const [cartelera, setCartelera] = useState<CarteleraItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const IP = "192.168.100.169"; // cambia según tu red
+
+  //  Backend en Render
+  const API = "https://cinetrack-produc.onrender.com/api";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://${IP}:3000/api/cartelera`);
+        const res = await axios.get(`${API}/cartelera`);
         setCartelera(res.data);
       } catch (error) {
         console.error("Error al cargar cartelera:", error);
@@ -57,7 +58,12 @@ export default function Cartelera() {
       {["En Cartelera", "Preventa", "Próximamente"].map((categoria) => (
         <View key={categoria}>
           <Text style={styles.sectionTitle}>{categoria}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.horizontalList}
+          >
             {cartelera
               .filter((c) => c.estado === categoria)
               .map((item) => (
@@ -76,64 +82,64 @@ export default function Cartelera() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: "#0D0D0D",
-      paddingTop: 50,
-    },
-    header: {
-      color: "#3FB7FF",
-      fontSize: 26,
-      textAlign: "center",
-      fontWeight: "bold",
-      marginBottom: 10,
-    },
-    sectionTitle: {
-      color: "#E6DED2",
-      fontSize: 18,
-      fontWeight: "bold",
-      marginLeft: 15,
-      marginVertical: 10,
-    },
-    horizontalList: {
-      paddingHorizontal: 10,
-    },
-    card: {
-      width: 150,
-      marginHorizontal: 8,
-      backgroundColor: "#1A1A1A",
-      borderRadius: 10,
-      shadowColor: "#3FB7FF",
-      shadowOpacity: 0.3,
-      shadowRadius: 6,
-      elevation: 5,
-    },
-    image: {
-      width: "100%",
-      height: 220,
-      borderRadius: 10,
-    },
-    title: {
-      color: "#FFF",
-      textAlign: "center",
-      marginTop: 6,
-      fontWeight: "600",
-    },
-    details: {
-      color: "#999",
-      textAlign: "center",
-      fontSize: 12,
-    },
-    horarios: {
-      color: "#3FB7FF",
-      textAlign: "center",
-      fontSize: 12,
-      marginBottom: 6,
-    },
-    loader: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "#0D0D0D",
-    },
-  });
+  container: {
+    flex: 1,
+    backgroundColor: "#0D0D0D",
+    paddingTop: 50,
+  },
+  header: {
+    color: "#3FB7FF",
+    fontSize: 26,
+    textAlign: "center",
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  sectionTitle: {
+    color: "#E6DED2",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 15,
+    marginVertical: 10,
+  },
+  horizontalList: {
+    paddingHorizontal: 10,
+  },
+  card: {
+    width: 150,
+    marginHorizontal: 8,
+    backgroundColor: "#1A1A1A",
+    borderRadius: 10,
+    shadowColor: "#3FB7FF",
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  image: {
+    width: "100%",
+    height: 220,
+    borderRadius: 10,
+  },
+  title: {
+    color: "#FFF",
+    textAlign: "center",
+    marginTop: 6,
+    fontWeight: "600",
+  },
+  details: {
+    color: "#999",
+    textAlign: "center",
+    fontSize: 12,
+  },
+  horarios: {
+    color: "#3FB7FF",
+    textAlign: "center",
+    fontSize: 12,
+    marginBottom: 6,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#0D0D0D",
+  },
+});

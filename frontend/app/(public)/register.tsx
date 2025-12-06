@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "reac
 import axios from "axios";
 import { useRouter } from "expo-router";
 
+// API Render centralizada
+const API = "https://cinetrack-produc.onrender.com/api";
+
 export default function Register() {
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
@@ -10,28 +13,32 @@ export default function Register() {
   const router = useRouter();
 
   const handleRegister = async () => {
-    if (!nombre || !correo || !pass) {
+    if (!nombre.trim() || !correo.trim() || !pass.trim()) {
       Alert.alert("Error", "Todos los campos son obligatorios.");
       return;
     }
 
     try {
-      const response = await axios.post("http://192.168.100.169:3000/api/usuarios/register", {
+      const response = await axios.post(`${API}/usuarios/register`, {
         nombre,
         correo,
         pass,
       });
 
-      // Manejo correcto del mensaje según la respuesta del backend
-      if (response.status === 201 || response.data.message) {
-        Alert.alert(" Registro exitoso", "Ya puedes iniciar sesión en CineTrack.");
+      if (response.status === 201) {
+        Alert.alert("🎬 Registro exitoso", "Tu cuenta fue creada. Ya podés iniciar sesión.");
         router.push("/login");
       } else {
-        Alert.alert("Error", "Ocurrió un problema al registrar el usuario.");
+        Alert.alert("Error", response.data?.error || "No se pudo registrar el usuario.");
       }
     } catch (error: any) {
-      console.error(" Error en el registro:", error.message);
-      Alert.alert("Error", "No se pudo completar el registro. Verifica tus datos.");
+      console.error("Error en el registro:", error);
+
+      if (error.response?.status === 409) {
+        Alert.alert("Correo registrado", "Ese correo ya está en uso. Probá con otro.");
+      } else {
+        Alert.alert("Error", "No se pudo completar el registro. Revisá tu conexión.");
+      }
     }
   };
 
@@ -55,6 +62,7 @@ export default function Register() {
         keyboardType="email-address"
         value={correo}
         onChangeText={setCorreo}
+        autoCapitalize="none"
       />
 
       <TextInput
@@ -71,12 +79,13 @@ export default function Register() {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.push("/login")}>
-        <Text style={styles.link}>¿Ya tienes cuenta? Iniciá sesión</Text>
+        <Text style={styles.link}>¿Ya tenés cuenta? Iniciá sesión</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
+// 🎨 Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
