@@ -3,9 +3,26 @@ import db from "../db.js";
 
 const router = express.Router();
 
-/* 
-   consulta que obtiene todas las reseñas por peliculas. 
-*/
+/* GET todas las reseñas */
+router.get("/", async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT r.idResena, r.contenido, r.calificacion, r.fecha,
+             u.nombre AS usuario, p.titulo AS pelicula
+      FROM resena r
+      JOIN usuario u ON r.idUsuario = u.idUsuario
+      JOIN pelicula p ON r.idPelicula = p.idPelicula
+      ORDER BY r.fecha DESC
+    `);
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al obtener todas las reseñas:", error);
+    res.status(500).json({ error: "Error al obtener todas las reseñas" });
+  }
+});
+
+/* 🔹 GET reseñas por película */
 router.get("/:idPelicula", async (req, res) => {
   const { idPelicula } = req.params;
   try {
@@ -15,29 +32,27 @@ router.get("/:idPelicula", async (req, res) => {
        FROM resena r
        JOIN usuario u ON r.idUsuario = u.idUsuario
        WHERE r.idPelicula = ?
-       ORDER BY r.fecha DESC`, // oerdenamos las consultas de menor a mayor. 
+       ORDER BY r.fecha DESC`,
       [idPelicula]
     );
 
     res.json(rows);
   } catch (error) {
-    console.error(" Error al obtener reseñas:", error);
+    console.error("Error al obtener reseñas:", error);
     res.status(500).json({ error: "Error al obtener reseñas" });
   }
 });
 
-/* 
-   usamos el metodo post para guardar la reseñaen la base de datos. 
- */
+/* 🔹 POST crear reseña */
 router.post("/", async (req, res) => {
   const { idUsuario, idPelicula, contenido, calificacion } = req.body;
 
   if (!idUsuario || !idPelicula || !contenido) {
-    return res.status(400).json({ error: "Faltan datos para registrar la reseña por favor completalos" }); // faltan campos.
+    return res.status(400).json({ error: "Faltan datos para registrar la reseña" });
   }
 
   try {
-    const [result] = await db.query( // esta consulta carga, las reseñas de las peliculas. 
+    const [result] = await db.query(
       "INSERT INTO resena (idUsuario, idPelicula, contenido, calificacion) VALUES (?, ?, ?, ?)",
       [idUsuario, idPelicula, contenido, calificacion || 0]
     );
@@ -47,7 +62,7 @@ router.post("/", async (req, res) => {
       idResena: result.insertId,
     });
   } catch (error) {
-    console.error("Error al agregar reseña:", error); // si la reseña no responde. 
+    console.error("Error al agregar reseña:", error);
     res.status(500).json({ error: "Error al agregar reseña" });
   }
 });
