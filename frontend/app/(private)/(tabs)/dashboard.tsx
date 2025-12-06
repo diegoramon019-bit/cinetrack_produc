@@ -30,8 +30,8 @@ export default function Dashboard() {
 
     const fetchPeliculas = async () => {
       try {
-        console.log("📡 Cargando películas...");
-        const res = await axios.get("http://192.168.100.169:3000/api/peliculas");
+        console.log(" Cargando películas...");
+        const res = await axios.get("http://192.168.100.169:3000/api/peliculas"); //ip la base local. 
         setPeliculas(res.data);
         console.log("Películas recibidas desde la bd :", res.data.length);
       } catch (error) {
@@ -54,7 +54,7 @@ export default function Dashboard() {
     );
   }
 
-  // 🎞 Clasificación automática
+  // Clasificación automática
   const series = peliculas.filter(
     (p) =>
       p.genero?.toLowerCase().includes("temporada") ||
@@ -67,7 +67,7 @@ export default function Dashboard() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* 🎬 Logo gráfico del inicio */}
+      {/* Logo gráfico del inicio */}
       <View style={styles.header}>
         <Image
           source={require("../../../assets/images/cinetrack-logo.png")}
@@ -95,7 +95,7 @@ export default function Dashboard() {
         ))}
       </ScrollView>
 
-      {/* 🍿 Segunda sección: Recomendadas */}
+      {/*  Segunda sección: Recomendadas */}
       <Text style={styles.sectionTitle}>Recomendadas</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
         {recomendadas.map((item) => (
@@ -110,7 +110,7 @@ export default function Dashboard() {
         ))}
       </ScrollView>
 
-      {/* 📺 Nueva sección: Series */}
+      {/* Nueva sección: Series */}
       {series.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>Series</Text>

@@ -15,13 +15,13 @@ router.get("/", async (req, res) => {
     `);
     res.json(rows);
   } catch (error) {
-    console.error("⚠️ Error al obtener películas:", error.message);
+    console.error("Error al obtener películas:", error.message);
     res.status(500).json({ error: "Error al obtener películas" });
   }
 });
 
 /* 
-  Obtener una película por ID (detalle + sinopsis)
+  consulta que obtiene una película por ID detalle + sinopsis
 */
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
@@ -37,13 +37,13 @@ router.get("/:id", async (req, res) => {
 
     res.json(rows[0]);
   } catch (error) {
-    console.error("⚠️ Error al obtener película:", error.message);
+    console.error(" Error al obtener película:", error.message);
     res.status(500).json({ error: "Error al obtener película" });
   }
 });
 
 /* 
-   Nuevo endpoint: obtener plataformas de streaming
+    consulta que obtiene la plataforma en donde se visualizan los datos. 
  */
 router.get("/plataformas/:id", async (req, res) => {
   const { id } = req.params;
@@ -54,7 +54,7 @@ router.get("/plataformas/:id", async (req, res) => {
       WHERE idPelicula = ?
     `, [id]);
 
-    if (rows.length === 0)
+    if (rows.length === 0) // 404 not found -- no se encontro pelicula.
       return res.status(404).json({ error: "Película no encontrada" });
 
     const pelicula = rows[0];
@@ -74,7 +74,7 @@ router.get("/plataformas/:id", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("⚠️ Error al obtener plataformas:", error.message);
+    console.error("Error al obtener plataformas:", error.message);
     res.status(500).json({ error: "Error al obtener información de plataformas" });
   }
 });

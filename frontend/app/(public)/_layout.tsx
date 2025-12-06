@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-
+//vistas que ve el usuario sin estar logueado.
 export default function PublicLayout() {
   return (
     <Tabs

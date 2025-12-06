@@ -15,15 +15,15 @@ function AuthHandler() {
   const { user } = useAuth();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [isLoading, setIsLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState<any>(null); // 👈 ahora acepta objeto
+  const [currentUser, setCurrentUser] = useState<any>(null); //  ahora acepta objeto
 
-  // ⏳ Simula la carga inicial (pantalla de splash)
+  // Simula la carga inicial (pantalla de splash)
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
-  // 🌈 Transición suave entre pantallas (login ↔ dashboard)
+  // Transición suave entre pantallas (login ↔ dashboard)
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 0,
@@ -41,7 +41,7 @@ function AuthHandler() {
     });
   }, [user]);
 
-  // 💠 Pantalla de carga inicial
+  //  Pantalla de carga inicial
   if (isLoading) {
     return (
       <View
@@ -57,7 +57,7 @@ function AuthHandler() {
     );
   }
 
-  // 🚪 Decide si mostrar la parte pública o privada
+  // Decide si mostrar la parte pública o privada
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
       <Stack screenOptions={{ headerShown: false }}>

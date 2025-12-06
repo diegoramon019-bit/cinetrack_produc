@@ -3,7 +3,7 @@ import db from "../db.js";
 
 const router = express.Router();
 
-// ✅ Obtener toda la cartelera (con datos de película asociados)
+//  consulta que obtiene todas las peliculas asociadas, con sus respectivos datos asociados en la cartelera. 
 router.get("/", async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -13,10 +13,10 @@ router.get("/", async (req, res) => {
       JOIN pelicula p ON c.idPelicula = p.idPelicula
       ORDER BY c.estado DESC, p.titulo ASC
     `);
-    res.json(rows);
+    res.json(rows);//  si tenemos error al obtener los datos emitimos el mensaje de error. 
   } catch (error) {
-    console.error("⚠️ Error al obtener cartelera:", error.message);
-    res.status(500).json({ error: "Error al obtener cartelera" });
+    console.error("Error al obtener cartelera:", error.message);
+    res.status(500).json({ error: "Error al obtener cartelera" }); // este error se da cuando no hay datos error 500.
   }
 });
 

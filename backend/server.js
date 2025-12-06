@@ -10,27 +10,27 @@ import carteleraRoutes from "./routes/cartelera.js";
 dotenv.config();
 const app = express();
 
-// ✅ Middleware
+//  Middleware
 app.use(cors());
 app.use(express.json());
 
-// ✅ Servir imágenes de perfil
+// Servicios que obtienen las imágenes de perfil
 // (esto permite acceder con http://<IP>:3000/uploads/nombrefoto.jpg)
 app.use("/uploads", express.static(path.resolve("uploads")));
 
-// ✅ Rutas principales
+//  Rutas principales enlaza los de los apis.
 app.use("/api/peliculas", peliculasRouter);
 app.use("/api/usuarios", usuariosRouter);
 app.use("/api/resenas", resenasRouter);
 app.use("/api/cartelera", carteleraRoutes);
 
-// ✅ Endpoint de prueba
+//  Endpoint de prueba
 app.get("/", (req, res) => {
-  res.send("🎬 Servidor CineTrack funcionando correctamente 🚀");
+  res.send(" Servidor CineTrack arriba");
 });
 
-// ✅ Iniciar servidor
+//  Iniciar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Servidor corriendo en http://0.0.0.0:${PORT}`);
+  console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
 });

@@ -20,7 +20,7 @@ export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
 
-  // 💫 Animación del logo
+  // Animación del logo
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 

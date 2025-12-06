@@ -1,5 +1,5 @@
 // backend/db.js
-import mysql from "mysql2/promise"; // 👈 usa la versión con promesas
+import mysql from "mysql2/promise"; // consultas.
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -16,7 +16,7 @@ try {
 
   console.log("LEST FUCKING GOOOOOOO Conectado correctamente a la base de datos:", process.env.DB_NAME);
 } catch (err) {
-  console.error("❌ Error al conectar con MySQL:", err.message);
+  console.error(" Error al conectar con MySQL:", err.message);
 }
 
 export default db;

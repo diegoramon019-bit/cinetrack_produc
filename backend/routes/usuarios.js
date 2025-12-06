@@ -7,7 +7,7 @@ import path from "path";
 const router = express.Router();
 
 /* 
-   REGISTRO DE USUARIO
+   registro del usuario.
 */
 router.post("/register", async (req, res) => {
   const { nombre, correo, pass } = req.body;
@@ -18,15 +18,15 @@ router.post("/register", async (req, res) => {
 
     const [existente] = await db.query("SELECT * FROM usuario WHERE correo = ?", [correo]);
     if (existente.length > 0)
-      return res.status(409).json({ error: "El correo ya está registrado" });
+      return res.status(409).json({ error: "El correo ya está registrado" }); //comparamos el correo existente.
 
-    const hashed = await bcrypt.hash(pass, 10);
+    const hashed = await bcrypt.hash(pass, 10); // caso contrario insertamos los valores.
     await db.query("INSERT INTO usuario (nombre, correo, pass) VALUES (?, ?, ?)", [
       nombre,
       correo,
       hashed,
     ]);
-
+    //mensaje de registro exitoso,. 
     res.status(201).json({ message: "Usuario registrado con éxito" });
   } catch (error) {
     console.error("Error en /register:", error.message);
@@ -35,8 +35,8 @@ router.post("/register", async (req, res) => {
 });
 
 /* 
-   LOGIN DE USUARIO
- */
+ si faltan datos en el login 
+*/
 router.post("/login", async (req, res) => {
   const { correo, pass } = req.body;
 
@@ -64,7 +64,7 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("⚠️ Error en /login:", error.message);
+    console.error("Error en /login:", error.message);
     res.status(500).json({ error: "Error al iniciar sesión" });
   }
 });
@@ -76,21 +76,21 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/fotos"),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}${ext}`);
+    cb(null, `${Date.now()}${ext}`);// sube a la bae de datos la foto que uso el usuario. 
   },
 });
-const upload = multer({ storage });
+const upload = multer({ storage }); //almancena de manera local. 
 
 router.post("/foto/:id", upload.single("foto"), async (req, res) => {
   const foto = req.file ? req.file.filename : null;
 
-  if (!foto) return res.status(400).json({ error: "No se recibió ninguna imagen" });
+  if (!foto) return res.status(400).json({ error: "No se recibió ninguna imagen" }); ///si no hay imagen. 
 
   try {
     await db.query("UPDATE usuario SET foto_perfil = ? WHERE idUsuario = ?", [foto, req.params.id]);
     res.json({ mensaje: "Foto actualizada correctamente", archivo: foto });
   } catch (error) {
-    console.error("⚠️ Error al subir foto:", error);
+    console.error("Error al subir foto:", error);
     res.status(500).json({ error: "Error al subir la foto" });
   }
 });
@@ -104,14 +104,14 @@ router.put("/bio/:id", async (req, res) => {
     await db.query("UPDATE usuario SET bio = ? WHERE idUsuario = ?", [bio, req.params.id]);
     res.json({ mensaje: "Biografía actualizada correctamente" });
   } catch (error) {
-    console.error("⚠️ Error al actualizar bio:", error);
+    console.error("Error al actualizar bio:", error);
     res.status(500).json({ error: "Error al actualizar biografía" });
   }
 });
 
 /* 
-   OBTENER RESEÑAS DEL USUARIO
- */
+ consulta que obtiene todas las reseñas del usuario. 
+*/
 router.get("/resenas/:id", async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -124,7 +124,7 @@ router.get("/resenas/:id", async (req, res) => {
     );
     res.json(rows);
   } catch (error) {
-    console.error("⚠️ Error al obtener reseñas:", error);
+    console.error("Error al obtener reseñas:", error);
     res.status(500).json({ error: "Error al obtener reseñas" });
   }
 });
@@ -141,7 +141,7 @@ router.get("/:id", async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: "Usuario no encontrado" });
     res.json(rows[0]);
   } catch (error) {
-    console.error("⚠️ Error al obtener perfil:", error);
+    console.error(" Error al obtener perfil:", error);
     res.status(500).json({ error: "Error al obtener perfil" });
   }
 });
